@@ -1,44 +1,36 @@
 package com.jamesfountain.coynr;
 
-import lombok.extern.slf4j.Slf4j;
+import com.google.gson.Gson;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
+import javax.validation.constraints.NotBlank;
 
-@Slf4j
 @RestController
 public class Controller {
 
-    @GetMapping("/change/{target}")
-    ArrayList<String> change(@RequestParam(value = "coins") String coins, @PathVariable("target") String target)  {
+    //TODO write tests for controller and service
+    @GetMapping(
+            value = "/change/{target}",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    ResponseEntity change(
+            @RequestParam(value = "coins") String coins,
+            @PathVariable("target") @NotBlank String target)
+    {
+        //Validate input
+        if (coins.length() < 1)
+            return new ResponseEntity<>("Supply one or more coins! eg /change/10?coins=1,2,10,5", HttpStatus.NOT_ACCEPTABLE);
 
-        log.info("Target = " + target);
-        log.info("coins = " + coins);
-
-        ArrayList<String> list = new ArrayList<String>();
-        list.add(target);
-        list.add(coins);
-
-        String[] split = coins.split(",");
-        int[] coinInts = new int[coins.length()];
-        int i = 0;
-        for (String s : split) {
-            i++;
-            int parsed = Integer.parseInt(s);
-            coinInts[i] = parsed;
-        }
-        log.info(String.valueOf(coinInts));
-        // validation on coins -  must have more than 0 integers
-
-        // split coins and read into HASHMAP? or SET?
-
+        int[] coinInts = Service.stringArrayToIntArray(coins);
 
         // Calculate all permutations of coins that fit into target
+        Service service = new Service();
+        service.findCombos(0, Integer.parseInt(target), coinInts, "");
 
-        // Formatting? Can I format response as json or does it have to be in that horrible string format?
-
-        return list;
+        //TODO format responses into json properly
+        return new ResponseEntity<>(new Gson().toJson(service.getValidCombos()), HttpStatus.OK);
     }
-
 
 }
