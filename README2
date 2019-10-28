@@ -1,0 +1,12 @@
+##Coynr
+Returns a list of all valid combinations of supplied coin values for a given target.
+
+###How to run 
+Start the app then make a GET request to /change/{target} providing a target in the path and at least 
+one coin value as a param (comma separated). See below for examples.
+
+curl localhost:8080/change/10?coins=1,2,5
+
+curl localhost:8080/change/250?coins=1,2,5,10
+
+curl localhost:8080/change/25?coins=1
